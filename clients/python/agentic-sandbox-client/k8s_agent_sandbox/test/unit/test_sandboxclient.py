@@ -44,6 +44,26 @@ class TestSandboxClient(unittest.TestCase):
         self.mock_sandbox_class = MagicMock()
         self.client.sandbox_class = self.mock_sandbox_class
 
+    @patch('atexit.register')
+    @patch('k8s_agent_sandbox.sandbox_client.K8sHelper')
+    def test_init_with_delete_all_on_exit_true(self, MockK8sHelper, mock_atexit_register):
+        client = SandboxClient(delete_all_on_exit=True)
+        mock_atexit_register.assert_called_once_with(client.delete_all)
+
+    @patch('atexit.register')
+    @patch('k8s_agent_sandbox.sandbox_client.K8sHelper')
+    def test_init_with_delete_all_on_exit_false(self, MockK8sHelper, mock_atexit_register):
+        client = SandboxClient(delete_all_on_exit=False)
+        mock_atexit_register.assert_not_called()
+
+    @patch('atexit.register')
+    @patch('k8s_agent_sandbox.sandbox_client.K8sHelper')
+    def test_init_default_delete_all_on_exit_false(self, MockK8sHelper, mock_atexit_register):
+        client = SandboxClient()
+        mock_atexit_register.assert_not_called()
+
+
+
     @patch('uuid.uuid4')
     def test_create_sandbox_success(self, mock_uuid):
         mock_uuid.return_value.hex = '1234abcd'

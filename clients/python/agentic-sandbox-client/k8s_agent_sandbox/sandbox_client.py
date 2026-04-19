@@ -57,7 +57,9 @@ class SandboxClient(Generic[T]):
         self,
         connection_config: SandboxConnectionConfig | None = None,
         tracer_config: SandboxTracerConfig | None = None,
+        delete_all_on_exit: bool = False,
     ):
+
         # Sandbox related configuration
         self.connection_config = connection_config or SandboxLocalTunnelConnectionConfig()
         
@@ -75,7 +77,9 @@ class SandboxClient(Generic[T]):
         
         # Register global cleanup for all tracked sandboxes.
         # Deletes all the sandboxes on program termination
-        atexit.register(self.delete_all)
+        if delete_all_on_exit:
+            atexit.register(self.delete_all)
+
 
     def create_sandbox(self, template: str, namespace: str = "default", sandbox_ready_timeout: int = 180, labels: dict[str, str] | None = None, *, shutdown_after_seconds: int | None = None, **kwargs) -> T:
         """Provisions new Sandbox claim and returns a Sandbox handle which tracks 
